@@ -21,7 +21,7 @@ local Window = Library:CreateWindow({
 	NotifySide = "Left",
 	TabPadding = 8,
 	MenuFadeTime = 0.2,
-		Size = UDim2.fromOffset(400, 300)
+		Size = UDim2.fromOffset(450, 350)
 })
 
 local Tabs = {
