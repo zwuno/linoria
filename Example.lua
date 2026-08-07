@@ -1,5 +1,4 @@
--- TODO: replace with your repo's raw URLs (github.com/zwuno/uitest) once you confirm the paths/branch
-local repo = "https://raw.githubusercontent.com/zwuno/uitest/main/"
+local repo = "https://raw.githubusercontent.com/zwuno/linoria/main/"
 
 local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
 local ThemeManager = loadstring(game:HttpGet(repo .. "ThemeManager.lua"))()
