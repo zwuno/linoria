@@ -1,14 +1,14 @@
 local cloneref = (cloneref or clonereference or function(instance: any)
     return instance
 end)
-local clonefunction = (clonefunction or copyfunction or function(func) 
-    return func 
+local clonefunction = (clonefunction or copyfunction or function(func)
+    return func
 end)
 
 local HttpService: HttpService = cloneref(game:GetService("HttpService"))
 local isfolder, isfile, listfiles = isfolder, isfile, listfiles;
 
-local assert = function(condition, errorMessage) 
+local assert = function(condition, errorMessage)
     if (not condition) then
         error(if errorMessage then errorMessage else "assert failed", 3)
     end
@@ -130,14 +130,6 @@ local SaveManager = {} do
         end
     end
 
-    function SaveManager:IgnoreThemeSettings()
-        self:SetIgnoreIndexes({
-            "BackgroundColor", "MainColor", "AccentColor", "OutlineColor", "FontColor", -- themes
-            "ThemeManager_ThemeList", 'ThemeManager_CustomThemeList', 'ThemeManager_CustomThemeName', -- themes
-            "VideoLink",
-        })
-    end
-
     --// Folders \\--
     function SaveManager:CheckSubFolder(createFolder)
         if typeof(self.SubFolder) ~= "string" or self.SubFolder == "" then return false end
@@ -160,7 +152,6 @@ local SaveManager = {} do
             if not table.find(paths, path) then paths[#paths + 1] = path end
         end
 
-        paths[#paths + 1] = self.Folder .. '/themes'
         paths[#paths + 1] = self.Folder .. '/settings'
 
         if self:CheckSubFolder(false) then
@@ -211,6 +202,8 @@ local SaveManager = {} do
     end
 
     --// Save, Load, Delete, Refresh \\--
+    -- Note: theme colors (BackgroundColor, MainColor, AccentColor, OutlineColor, FontColor)
+    -- are just ColorPicker options like any other, so they save/load with the config automatically.
     function SaveManager:Save(name)
         if (not name) then
             return false, 'no config file is selected'
@@ -283,6 +276,14 @@ local SaveManager = {} do
             task.spawn(self.Parser[option.type].Load, option.idx, option) -- task.spawn() so the config loading wont get stuck.
         end
 
+        -- theme colors were just regular ColorPicker options in the loaded data,
+        -- so push them into the live theme once loading settles.
+        task.defer(function()
+            if self.Library.ThemeUpdate then
+                self.Library:ThemeUpdate()
+            end
+        end)
+
         return true
     end
 
@@ -321,8 +322,6 @@ local SaveManager = {} do
             for i = 1, #list do
                 local file = list[i]
                 if file:sub(-5) == '.json' then
-                    -- i hate this but it has to be done ...
-
                     local pos = file:find('.json', 1, true)
                     local start = pos
 
@@ -387,7 +386,7 @@ local SaveManager = {} do
         if isfile(autoLoadPath) then
             local successRead, name = pcall(readfile, autoLoadPath)
             if not successRead then
-                self.Library:Notify('Failed to load autoload config: write file error')
+                self.Library:Notify('Failed to load autoload config: read file error')
                 return
             end
 
@@ -435,7 +434,7 @@ local SaveManager = {} do
 
         local section = tab:AddRightGroupbox('Configuration')
 
-        section:AddInput('SaveManager_ConfigName',    { Text = 'Config name' })
+        section:AddInput('SaveManager_ConfigName', { Text = 'Config name' })
         section:AddButton('Create config', function()
             local name = self.Library.Options.SaveManager_ConfigName.Value
 
@@ -459,74 +458,95 @@ local SaveManager = {} do
         section:AddDivider()
 
         section:AddDropdown('SaveManager_ConfigList', { Text = 'Config list', Values = self:RefreshConfigList(), AllowNull = true })
-        section:AddButton('Load config', function()
-            local name = self.Library.Options.SaveManager_ConfigList.Value
 
-            local success, err = self:Load(name)
-            if not success then
-                self.Library:Notify('Failed to load config: ' .. err)
-                return
-            end
+        section:AddButton({
+            Text = 'Load',
+            Func = function()
+                local name = self.Library.Options.SaveManager_ConfigList.Value
 
-            self.Library:Notify(string.format('Loaded config %q', name))
-        end)
-        section:AddButton('Overwrite config', function()
-            local name = self.Library.Options.SaveManager_ConfigList.Value
+                local success, err = self:Load(name)
+                if not success then
+                    self.Library:Notify('Failed to load config: ' .. err)
+                    return
+                end
 
-            local success, err = self:Save(name)
-            if not success then
-                self.Library:Notify('Failed to overwrite config: ' .. err)
-                return
-            end
+                self.Library:Notify(string.format('Loaded config %q', name))
+            end,
+            DoubleClick = false,
+        }):AddButton({
+            Text = 'Save',
+            Func = function()
+                local name = self.Library.Options.SaveManager_ConfigList.Value
 
-            self.Library:Notify(string.format('Overwrote config %q', name))
-        end)
+                local success, err = self:Save(name)
+                if not success then
+                    self.Library:Notify('Failed to save config: ' .. err)
+                    return
+                end
 
-        section:AddButton('Delete config', function()
-            local name = self.Library.Options.SaveManager_ConfigList.Value
+                self.Library:Notify(string.format('Saved config %q', name))
+            end,
+        })
 
-            local success, err = self:Delete(name)
-            if not success then
-                self.Library:Notify('Failed to delete config: ' .. err)
-                return
-            end
+        section:AddButton({
+            Text = 'Delete',
+            Func = function()
+                local name = self.Library.Options.SaveManager_ConfigList.Value
 
-            self.Library:Notify(string.format('Deleted config %q', name))
-            self.Library.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
-            self.Library.Options.SaveManager_ConfigList:SetValue(nil)
-        end)
+                local success, err = self:Delete(name)
+                if not success then
+                    self.Library:Notify('Failed to delete config: ' .. err)
+                    return
+                end
 
-        section:AddButton('Refresh list', function()
-            self.Library.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
-            self.Library.Options.SaveManager_ConfigList:SetValue(nil)
-        end)
+                self.Library:Notify(string.format('Deleted config %q', name))
+                self.Library.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+                self.Library.Options.SaveManager_ConfigList:SetValue(nil)
+            end,
+        }):AddButton({
+            Text = 'Refresh',
+            Func = function()
+                self.Library.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+                self.Library.Options.SaveManager_ConfigList:SetValue(nil)
+            end,
+        })
 
-        section:AddButton('Set as autoload', function()
-            local name = self.Library.Options.SaveManager_ConfigList.Value
+        section:AddDivider()
 
-            local success, err = self:SaveAutoloadConfig(name)
-            if not success then
-                self.Library:Notify('Failed to set autoload config: ' .. err)
-                return
-            end
+        section:AddButton({
+            Text = 'Set as autoload',
+            Func = function()
+                local name = self.Library.Options.SaveManager_ConfigList.Value
+                if not name then
+                    self.Library:Notify('No config selected', 2)
+                    return
+                end
 
-            self.Library:Notify(string.format('Set %q to auto load', name))
-            self.AutoloadConfigLabel:SetText('Current autoload config: ' .. name)
-        end)
-        section:AddButton('Reset autoload', function()
-            local success, err = self:DeleteAutoLoadConfig()
-            if not success then
-                self.Library:Notify('Failed to set autoload config: ' .. err)
-                return
-            end
+                local success, err = self:SaveAutoloadConfig(name)
+                if not success then
+                    self.Library:Notify('Failed to set autoload config: ' .. err)
+                    return
+                end
 
-            self.Library:Notify('Set autoload to none')
-            self.AutoloadConfigLabel:SetText('Current autoload config: none')
-        end)
+                self.Library:Notify(string.format('Set %q to auto load', name))
+                self.AutoloadConfigLabel:SetText('Autoload: ' .. name)
+            end,
+        }):AddButton({
+            Text = 'Reset',
+            Func = function()
+                local success, err = self:DeleteAutoLoadConfig()
+                if not success then
+                    self.Library:Notify('Failed to reset autoload config: ' .. err)
+                    return
+                end
 
-        self.AutoloadConfigLabel = section:AddLabel("Current autoload config: " .. self:GetAutoloadConfig(), true)
+                self.Library:Notify('Autoload reset to none')
+                self.AutoloadConfigLabel:SetText('Autoload: none')
+            end,
+        })
 
-        -- self:LoadAutoloadConfig()
+        self.AutoloadConfigLabel = section:AddLabel('Autoload: ' .. self:GetAutoloadConfig(), true)
+
         self:SetIgnoreIndexes({ 'SaveManager_ConfigList', 'SaveManager_ConfigName' })
     end
 
