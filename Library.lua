@@ -8082,7 +8082,7 @@ end
             Size = UDim2.new(1, -4, 1, 0);
             BackgroundTransparency = 1;
             Font = Library.Font;
-            Text = "Toggle UI";
+            Text = "Toggle";
             TextColor3 = Library.FontColor;
             TextSize = 14;
             TextXAlignment = Enum.TextXAlignment.Left;
@@ -8152,7 +8152,7 @@ end
             Size = UDim2.new(1, -4, 1, 0);
             BackgroundTransparency = 1;
             Font = Library.Font;
-            Text = "Lock UI";
+            Text = "Lock";
             TextColor3 = Library.FontColor;
             TextSize = 14;
             TextXAlignment = Enum.TextXAlignment.Left;
@@ -8165,7 +8165,7 @@ end
         
         LockUIButton.MouseButton1Down:Connect(function()
             Library.CantDragForced = not Library.CantDragForced
-            LockUIButton.Text = Library.CantDragForced and "Unlock UI" or "Lock UI"
+            LockUIButton.Text = Library.CantDragForced and "Unlock" or "Lock"
         end)
     end
 
