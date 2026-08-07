@@ -20,7 +20,8 @@ local Window = Library:CreateWindow({
 	UnlockMouseWhileOpen = true,
 	NotifySide = "Left",
 	TabPadding = 8,
-	MenuFadeTime = 0.2
+	MenuFadeTime = 0.2,
+		Size = UDim2.fromOffset(400, 300)
 })
 
 local Tabs = {
@@ -37,7 +38,7 @@ local LeftGroupBox = Tabs.Main:AddLeftGroupbox("Groupbox")
 -- Toggle
 LeftGroupBox:AddToggle("MyToggle", {
 	Text = "This is a toggle",
-	Default = true,
+	Default = false,
 
 	Callback = function(Value)
 		print("[cb] MyToggle changed to:", Value)
