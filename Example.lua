@@ -1,24 +1,3 @@
---[[
-                                              _                                 
-                    __      ____ _ _ __ _ __ (_)_ __   __ _                     
-                    \ \ /\ / / _` | '__| '_ \| | '_ \ / _` |                    
-                     \ V  V / (_| | |  | | | | | | | | (_| |                    
-                      \_/\_/ \__,_|_|  |_| |_|_|_| |_|\__, |                    
-                                                      |___/                     
-      this example file is missing a lot of stuff and its pretty outdated       
-               i recommend using the documentation for Obsidian:                
-                        https://docs.mspaint.cc/obsidian                        
-                                                                                
-              a lot of stuff is very similar but it's not the same              
-                you can look through the source code of Linoria                 
-                                                                                
-                if anyone wants to expand on this example script                
-                       make an pull request or something                        
-                                                                                
-                       Original example (mady by wally):                        
-      https://github.com/violin-suzutsuki/LinoriaLib/blob/main/Example.lua                
---]]
-
 local repo = "https://raw.githubusercontent.com/mstudio45/LinoriaLib/main/"
 
 local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
@@ -33,15 +12,6 @@ Library.ShowCustomCursor = true -- Toggles the Linoria cursor globaly (Default v
 Library.NotifySide = "Left" -- Changes the side of the notifications globaly (Left, Right) (Default value = Left)
 
 local Window = Library:CreateWindow({
-	-- Set Center to true if you want the menu to appear in the center
-	-- Set AutoShow to true if you want the menu to appear when it is created
-	-- Set Resizable to true if you want to have in-game resizable Window
-	-- Set ShowCustomCursor to false if you don't want to use the Linoria cursor
-	-- Set UnlockMouseWhileOpen to false if you don't want to unlock the mouse when the UI is toggled
-	-- NotifySide = Changes the side of the notifications (Left, Right) (Default value = Left)
-	-- Position and Size are also valid options here
-	-- but you do not need to define them unless you are changing them :)
-
 	Title = "Example menu",
 	Center = true,
 	AutoShow = true,
@@ -53,16 +23,9 @@ local Window = Library:CreateWindow({
 	MenuFadeTime = 0.2
 })
 
--- CALLBACK NOTE:
--- Passing in callback functions via the initial element parameters (i.e. Callback = function(Value)...) works
--- HOWEVER, using Toggles/Options.INDEX:OnChanged(function(Value) ... ) is the RECOMMENDED way to do this.
--- I strongly recommend decoupling UI code from logic code. i.e. Create your UI elements FIRST, and THEN setup :OnChanged functions later.
-
--- You do not have to set your tabs & groups up this way, just a prefrence.
 local Tabs = {
-	-- Creates a new tab titled Main
 	Main = Window:AddTab("Main"),
-	["UI Settings"] = Window:AddTab("UI Settings"),
+	Settings = Window:AddTab("Settings"),
 }
 
 -- Groupbox and Tabbox inherit the same functions
