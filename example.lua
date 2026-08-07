@@ -12,7 +12,7 @@ Library.ShowCustomCursor = true -- Toggles the Linoria cursor globaly (Default v
 Library.NotifySide = "Left" -- Changes the side of the notifications globaly (Left, Right) (Default value = Left)
 
 local Window = Library:CreateWindow({
-	Title = "Example menu",
+	Title = "Untitled",
 	Center = true,
 	AutoShow = true,
 	Resizable = true,
@@ -20,7 +20,8 @@ local Window = Library:CreateWindow({
 	UnlockMouseWhileOpen = true,
 	NotifySide = "Left",
 	TabPadding = 8,
-	MenuFadeTime = 0.2
+	MenuFadeTime = 0.2,
+		Size = UDim2.fromOffset(400, 300)
 })
 
 local Tabs = {
