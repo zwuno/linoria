@@ -429,13 +429,15 @@ local SaveManager = {} do
     end
 
     --// GUI \\--
-    -- Layout (fits a 450x350 window):
+    -- Layout: every row is its own full-width element, nothing chained side-by-side.
     -- Name
     -- Create
     -- Config list
-    -- Save | Load
-    -- Delete (full width, its own row so it can't be misclicked next to Save/Load)
-    -- Set as Autoload | Reset
+    -- Save
+    -- Load
+    -- Delete
+    -- Set as Autoload
+    -- Reset Autoload
     -- Autoload label
     function SaveManager:BuildConfigSection(tab)
         assert(self.Library, 'SaveManager:BuildConfigSection -> Must set SaveManager.Library')
@@ -478,7 +480,9 @@ local SaveManager = {} do
 
                 self.Library:Notify(string.format('Saved %q', name))
             end,
-        }):AddButton({
+        })
+
+        section:AddButton({
             Text = 'Load',
             Func = function()
                 local name = self.Library.Options.SaveManager_ConfigList.Value
@@ -533,15 +537,15 @@ local SaveManager = {} do
         })
 
         section:AddButton({
-            Text = 'Reset Autoload',
+            Text = 'Remove Autoload',
             Func = function()
                 local success, err = self:DeleteAutoLoadConfig()
                 if not success then
-                    self.Library:Notify('Failed to reset autoload: ' .. err)
+                    self.Library:Notify('Failed to remove autoload: ' .. err)
                     return
                 end
 
-                self.Library:Notify('Autoload reset to none')
+                self.Library:Notify('Autoload removed to none')
                 self.AutoloadConfigLabel:SetText('Autoload: none')
             end,
         })
