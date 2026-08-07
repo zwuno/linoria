@@ -386,17 +386,17 @@ local SaveManager = {} do
         if isfile(autoLoadPath) then
             local successRead, name = pcall(readfile, autoLoadPath)
             if not successRead then
-                self.Library:Notify('Failed to load autoload config: read file error')
+                self.Library:Notify('Failed to load autoload: read file error')
                 return
             end
 
             local success, err = self:Load(name)
             if not success then
-                self.Library:Notify('Failed to load autoload config: ' .. err)
+                self.Library:Notify('Failed to load autoload: ' .. err)
                 return
             end
 
-            self.Library:Notify(string.format('Auto loaded config %q', name))
+            self.Library:Notify(string.format('Auto loaded %q', name))
         end
     end
 
@@ -432,24 +432,24 @@ local SaveManager = {} do
     function SaveManager:BuildConfigSection(tab)
         assert(self.Library, 'SaveManager:BuildConfigSection -> Must set SaveManager.Library')
 
-        local section = tab:AddRightGroupbox('Configuration')
+        local section = tab:AddRightGroupbox('Configs')
 
-        section:AddInput('SaveManager_ConfigName', { Text = 'Config name' })
-        section:AddButton('Create config', function()
+        section:AddInput('SaveManager_ConfigName', { Text = 'Name' })
+        section:AddButton('Create', function()
             local name = self.Library.Options.SaveManager_ConfigName.Value
 
             if name:gsub(' ', '') == '' then
-                self.Library:Notify('Invalid config name (empty)', 2)
+                self.Library:Notify('Invalid name (empty)', 2)
                 return
             end
 
             local success, err = self:Save(name)
             if not success then
-                self.Library:Notify('Failed to create config: ' .. err)
+                self.Library:Notify('Failed to create: ' .. err)
                 return
             end
 
-            self.Library:Notify(string.format('Created config %q', name))
+            self.Library:Notify(string.format('Created %q', name))
 
             self.Library.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
             self.Library.Options.SaveManager_ConfigList:SetValue(nil)
@@ -466,11 +466,11 @@ local SaveManager = {} do
 
                 local success, err = self:Load(name)
                 if not success then
-                    self.Library:Notify('Failed to load config: ' .. err)
+                    self.Library:Notify('Failed to load: ' .. err)
                     return
                 end
 
-                self.Library:Notify(string.format('Loaded config %q', name))
+                self.Library:Notify(string.format('Loaded %q', name))
             end,
             DoubleClick = false,
         }):AddButton({
@@ -480,11 +480,11 @@ local SaveManager = {} do
 
                 local success, err = self:Save(name)
                 if not success then
-                    self.Library:Notify('Failed to save config: ' .. err)
+                    self.Library:Notify('Failed to save: ' .. err)
                     return
                 end
 
-                self.Library:Notify(string.format('Saved config %q', name))
+                self.Library:Notify(string.format('Saved %q', name))
             end,
         })
 
@@ -495,11 +495,11 @@ local SaveManager = {} do
 
                 local success, err = self:Delete(name)
                 if not success then
-                    self.Library:Notify('Failed to delete config: ' .. err)
+                    self.Library:Notify('Failed to delete: ' .. err)
                     return
                 end
 
-                self.Library:Notify(string.format('Deleted config %q', name))
+                self.Library:Notify(string.format('Deleted %q', name))
                 self.Library.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
                 self.Library.Options.SaveManager_ConfigList:SetValue(nil)
             end,
