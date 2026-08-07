@@ -429,6 +429,14 @@ local SaveManager = {} do
     end
 
     --// GUI \\--
+    -- Layout (fits a 450x350 window):
+    -- Name
+    -- Create
+    -- Config list
+    -- Save | Load
+    -- Delete (full width, its own row so it can't be misclicked next to Save/Load)
+    -- Set as Autoload | Reset
+    -- Autoload label
     function SaveManager:BuildConfigSection(tab)
         assert(self.Library, 'SaveManager:BuildConfigSection -> Must set SaveManager.Library')
 
@@ -458,6 +466,19 @@ local SaveManager = {} do
         section:AddDropdown('SaveManager_ConfigList', { Text = 'Config list', Values = self:RefreshConfigList(), AllowNull = true })
 
         section:AddButton({
+            Text = 'Save',
+            Func = function()
+                local name = self.Library.Options.SaveManager_ConfigList.Value
+
+                local success, err = self:Save(name)
+                if not success then
+                    self.Library:Notify('Failed to save: ' .. err)
+                    return
+                end
+
+                self.Library:Notify(string.format('Saved %q', name))
+            end,
+        }):AddButton({
             Text = 'Load',
             Func = function()
                 local name = self.Library.Options.SaveManager_ConfigList.Value
@@ -471,19 +492,6 @@ local SaveManager = {} do
                 self.Library:Notify(string.format('Loaded %q', name))
             end,
             DoubleClick = false,
-        }):AddButton({
-            Text = 'Save',
-            Func = function()
-                local name = self.Library.Options.SaveManager_ConfigList.Value
-
-                local success, err = self:Save(name)
-                if not success then
-                    self.Library:Notify('Failed to save: ' .. err)
-                    return
-                end
-
-                self.Library:Notify(string.format('Saved %q', name))
-            end,
         })
 
         section:AddButton({
@@ -501,16 +509,11 @@ local SaveManager = {} do
                 self.Library.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
                 self.Library.Options.SaveManager_ConfigList:SetValue(nil)
             end,
-        }):AddButton({
-            Text = 'Refresh',
-            Func = function()
-                self.Library.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
-                self.Library.Options.SaveManager_ConfigList:SetValue(nil)
-            end,
+            DoubleClick = true,
         })
 
         section:AddButton({
-            Text = 'Set as autoload',
+            Text = 'Set as Autoload',
             Func = function()
                 local name = self.Library.Options.SaveManager_ConfigList.Value
                 if not name then
@@ -520,19 +523,21 @@ local SaveManager = {} do
 
                 local success, err = self:SaveAutoloadConfig(name)
                 if not success then
-                    self.Library:Notify('Failed to set autoload config: ' .. err)
+                    self.Library:Notify('Failed to set autoload: ' .. err)
                     return
                 end
 
                 self.Library:Notify(string.format('Set %q to auto load', name))
                 self.AutoloadConfigLabel:SetText('Autoload: ' .. name)
             end,
-        }):AddButton({
-            Text = 'Reset',
+        })
+
+        section:AddButton({
+            Text = 'Reset Autoload',
             Func = function()
                 local success, err = self:DeleteAutoLoadConfig()
                 if not success then
-                    self.Library:Notify('Failed to reset autoload config: ' .. err)
+                    self.Library:Notify('Failed to reset autoload: ' .. err)
                     return
                 end
 
