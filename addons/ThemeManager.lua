@@ -26,11 +26,11 @@ local ThemeManager = {} do
 
 	--// GUI \\--
 	function ThemeManager:CreateThemeManager(groupbox)
-		groupbox:AddLabel('Background'):AddColorPicker('BackgroundColor', { Default = self.Library.BackgroundColor })
-		groupbox:AddLabel('Main')      :AddColorPicker('MainColor', { Default = self.Library.MainColor })
-		groupbox:AddLabel('Accent')    :AddColorPicker('AccentColor', { Default = self.Library.AccentColor })
-		groupbox:AddLabel('Outline')   :AddColorPicker('OutlineColor', { Default = self.Library.OutlineColor })
-		groupbox:AddLabel('Font')      :AddColorPicker('FontColor', { Default = self.Library.FontColor })
+		groupbox:AddLabel('Background'):AddColorPicker('BackgroundColor', { Default = self.Library.BackgroundColor, Title = 'Background' })
+		groupbox:AddLabel('Main')      :AddColorPicker('MainColor', { Default = self.Library.MainColor, Title = 'Main' })
+		groupbox:AddLabel('Accent')    :AddColorPicker('AccentColor', { Default = self.Library.AccentColor, Title = 'Accent' })
+		groupbox:AddLabel('Outline')   :AddColorPicker('OutlineColor', { Default = self.Library.OutlineColor, Title = 'Outline' })
+		groupbox:AddLabel('Font')      :AddColorPicker('FontColor', { Default = self.Library.FontColor, Title = 'Font' })
 
 		local function UpdateTheme() self:ThemeUpdate() end
 		self.Library.Options.BackgroundColor:OnChanged(UpdateTheme)
